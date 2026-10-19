@@ -1,0 +1,39 @@
+services:
+  abs-webnovel:
+    build: .
+    image: abs-webnovel:latest
+    container_name: abs-webnovel
+    ports:
+      - "8080:8080"
+    environment:
+      # Ordered, comma-separated list of sources (earlier = higher priority).
+      SOURCE_PRIORITY: anilist,mangadex,ranobedb,myanimelist,novelupdates
+      # "priority" = merge all sources by priority; "first" = stop at first hit.
+      MERGE_MODE: priority
+      SEARCH_LIMIT: "5"
+      PREFER_ROMAJI: "true"
+      LOG_LEVEL: INFO
+      # Required to enable the MyAnimeList source (leave empty to disable).
+      MAL_CLIENT_ID: ""
+      # Optional: base URL of a Byparr anti-bot proxy to unlock NovelUpdates.
+      # Uncomment (and start the byparr service below) to enable it.
+      # BYPARR_URL: "http://byparr:8191"
+    volumes:
+      - abs-webnovel-cache:/app/cache
+    restart: unless-stopped
+
+  # Optional Cloudflare bypass for the NovelUpdates source.
+  # Remove this service (and the BYPARR_URL line above) if you don't need it.
+  byparr:
+    image: ghcr.io/thephaseless/byparr:latest
+    container_name: byparr
+    ports:
+      - "8191:8191"
+    shm_size: "1gb"
+    tmpfs:
+      - /tmp:exec,mode=1777,size=1G
+      - /cache:mode=1777,size=512M
+    restart: unless-stopped
+
+volumes:
+  abs-webnovel-cache:

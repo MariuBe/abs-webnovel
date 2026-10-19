@@ -1,0 +1,39 @@
+[project]
+name = "abs-webnovel"
+version = "0.1.0"
+description = "Multi-source light novel / web novel metadata provider for Audiobookshelf (AniList, MangaDex, RanobeDB, MyAnimeList, NovelUpdates)"
+readme = "README.md"
+authors = [
+    { name = "Marius-Becker", email = "marius.becker@bertelsmann.de" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp>=3.9",
+    "aiohttp-client-cache>=0.11",
+    "aiosqlite>=0.20",
+    "aiolimiter>=1.1",
+    "langcodes>=3.3",
+]
+
+[project.scripts]
+abs-webnovel = "abs_webnovel.main:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-aiohttp>=1.0",
+    "ruff>=0.4",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
