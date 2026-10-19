@@ -1,34 +1,42 @@
+# abs-webnovel + Byparr stack.
+#
+# Configuration lives in `.env` (see `.env.example`). It is used both for
+# ${VAR} interpolation below (host ports) and passed to both containers
+# via `env_file`.
 services:
   abs-webnovel:
     build: .
     image: abs-webnovel:latest
     container_name: abs-webnovel
-    ports:
-      - "8080:8080"
+    env_file: .env
     environment:
-      # Ordered, comma-separated list of sources (earlier = higher priority).
-      SOURCE_PRIORITY: anilist,mangadex,ranobedb,myanimelist,novelupdates
-      # "priority" = merge all sources by priority; "first" = stop at first hit.
-      MERGE_MODE: priority
-      SEARCH_LIMIT: "5"
-      PREFER_ROMAJI: "true"
-      LOG_LEVEL: INFO
-      # Required to enable the MyAnimeList source (leave empty to disable).
-      MAL_CLIENT_ID: ""
-      # Optional: base URL of a Byparr anti-bot proxy to unlock NovelUpdates.
-      # Uncomment (and start the byparr service below) to enable it.
-      # BYPARR_URL: "http://byparr:8191"
+      # In-stack address of Byparr (overrides BYPARR_URL from .env).
+      BYPARR_URL: http://byparr:8191
+    ports:
+      - "${WEBNOVEL_PORT:-8080}:8080"
     volumes:
       - abs-webnovel-cache:/app/cache
+    depends_on:
+      - byparr
     restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=5).status == 200 else 1)
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
-  # Optional Cloudflare bypass for the NovelUpdates source.
-  # Remove this service (and the BYPARR_URL line above) if you don't need it.
+  # Cloudflare bypass for the NovelUpdates source.
   byparr:
     image: ghcr.io/thephaseless/byparr:latest
     container_name: byparr
+    env_file: .env
     ports:
-      - "8191:8191"
+      - "${BYPARR_PORT:-8191}:8191"
     shm_size: "1gb"
     tmpfs:
       - /tmp:exec,mode=1777,size=1G

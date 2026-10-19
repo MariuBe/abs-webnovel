@@ -30,8 +30,13 @@ Audiobookshelf **Custom Metadata Provider** contract
 ## Quick start (Docker)
 
 ```bash
+cp .env.example .env   # then edit values (ports, source priority, proxy, …)
 docker compose up -d --build
 ```
+
+The `compose.yaml` file starts both `abs-webnovel` and the Byparr Cloudflare
+bypass, and reads all configuration from `.env` (see
+[Configuration](#configuration-environment-variables)).
 
 Then in Audiobookshelf: **Settings → Item Metadata Utils → Custom Metadata
 Providers → Add**
@@ -78,23 +83,24 @@ NovelUpdates sits behind Cloudflare and returns 403 to plain HTTP clients.
 [Byparr](https://github.com/ThePhaseless/Byparr) is a FlareSolverr-compatible
 service that drives a real browser, solves the challenge, and returns the
 rendered page. Point `BYPARR_URL` at a running instance and the NovelUpdates
-source will route its requests through it:
+source will route its requests through it.
+
+The bundled `compose.yaml` already runs a `byparr` service and wires
+`BYPARR_URL=http://byparr:8191` into `abs-webnovel`, so the bypass is enabled
+out of the box. Byparr's own settings (proxy, locale, timezone) are configured
+through the same `.env` file:
 
 ```yaml
-# compose.yaml (add alongside the abs-webnovel service)
+# compose.yaml (already included)
 byparr:
   image: ghcr.io/thephaseless/byparr:latest
+  env_file: .env
   ports:
-    - "8191:8191"
+    - "${BYPARR_PORT:-8191}:8191"
   shm_size: "1gb"
   tmpfs:
     - /tmp:exec,mode=1777,size=1G
     - /cache:mode=1777,size=512M
-
-abs-webnovel:
-  # ...
-  environment:
-    BYPARR_URL: "http://byparr:8191"
 ```
 
 Notes:
