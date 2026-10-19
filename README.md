@@ -142,3 +142,7 @@ tests/                 # unit tests (merge logic, parsers, Byparr)
   search request.
 - `description` is sanitized (HTML stripped) before being returned; ABS also
   runs it through its own HTML sanitizer.
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
