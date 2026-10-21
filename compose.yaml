@@ -41,7 +41,8 @@ services:
     tmpfs:
       - /tmp:exec,mode=1777,size=1G
       # Must fit the extracted Camoufox browser bundle (~1 GB).
-      - /cache:mode=1777,size=2G
+      # `exec` is required: the browser binary is spawned from this mount.
+      - /cache:exec,mode=1777,size=2G
     restart: unless-stopped
 
 volumes:
