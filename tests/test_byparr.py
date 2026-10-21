@@ -9,12 +9,14 @@ NovelUpdates provider routes through it when configured.
 
 from __future__ import annotations
 
+import json
 from typing import Any, Self
 
 from aiolimiter import AsyncLimiter
 
 from abs_webnovel.config import Config
 from abs_webnovel.providers.novelupdates import NovelUpdatesProvider
+from abs_webnovel.providers.webnovel import WebnovelProvider
 
 
 class _FakeResponse:
@@ -172,3 +174,63 @@ async def test_novelupdates_direct_fallback_when_no_byparr():
     matches = await p.search("solo leveling")
     assert session.get_called is True
     assert [m["title"] for m in matches] == ["Solo Leveling"]
+
+
+# --- Webnovel routing -------------------------------------------------------
+
+
+def _webnovel_json() -> str:
+    return json.dumps(
+        {
+            "code": 0,
+            "data": {
+                "bookInfo": {
+                    "total": 1,
+                    "isLast": 1,
+                    "bookItems": [
+                        {
+                            "bookId": "1234567",
+                            "bookName": "The Legendary Mechanic",
+                            "authorName": "齐佩甲",
+                            "categoryName": "EASTERN",
+                            "tagInfo": ["Sci-Fi"],
+                        }
+                    ],
+                }
+            },
+        }
+    )
+
+
+def _webnovel_provider(config: Config, session: _FakeSession) -> WebnovelProvider:
+    return WebnovelProvider(config, session=session, limiter=AsyncLimiter(10, 1))
+
+
+async def test_webnovel_uses_byparr_when_configured():
+    # Byparr renders the JSON as plaintext HTML wrapped in <pre>.
+    body = "<html><body><pre>" + _webnovel_json() + "</pre></body></html>"
+    session = _FakeSession([_byparr_ok(body)])
+    p = _webnovel_provider(Config(byparr_url="http://byparr:8191"), session)
+    matches = await p.search("legendary mechanic")
+    assert [m["title"] for m in matches] == ["The Legendary Mechanic"]
+    # The search URL (with query params) was sent to Byparr's /v1 endpoint.
+    url, payload = session.calls[0]
+    assert url == "http://byparr:8191/v1"
+    assert payload["cmd"] == "request.get"
+    assert "keywords=legendary+mechanic" in payload["url"]
+    assert "type=novel" in payload["url"]
+
+
+async def test_webnovel_disabled_without_byparr():
+    # No Byparr configured: the source is disabled (direct = Cloudflare 403).
+    p = _webnovel_provider(Config(byparr_url=""), _FakeSession([]))
+    assert p.enabled is False
+    assert await p.search("legendary mechanic") == []
+
+
+async def test_webnovel_byparr_failure_returns_empty():
+    session = _FakeSession(
+        [_FakeResponse(200, {"status": "error", "message": "boom"})]
+    )
+    p = _webnovel_provider(Config(byparr_url="http://byparr:8191"), session)
+    assert await p.search("legendary mechanic") == []

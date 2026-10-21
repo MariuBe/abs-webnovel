@@ -14,8 +14,10 @@ from ..config import Config
 from .anilist import AniListProvider
 from .mangadex import MangaDexProvider
 from .myanimelist import MyAnimeListProvider
+from .novelbuddy import NovelBuddyProvider
 from .novelupdates import NovelUpdatesProvider
 from .ranobedb import RanobeDBProvider
+from .webnovel import WebnovelProvider
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +28,8 @@ PROVIDERS: dict[str, type[BaseProvider]] = {
     "ranobedb": RanobeDBProvider,
     "myanimelist": MyAnimeListProvider,
     "novelupdates": NovelUpdatesProvider,
+    "webnovel": WebnovelProvider,
+    "novelbuddy": NovelBuddyProvider,
 }
 
 

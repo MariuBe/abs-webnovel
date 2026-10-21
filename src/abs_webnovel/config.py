@@ -47,6 +47,8 @@ class Config:
             "ranobedb",
             "myanimelist",
             "novelupdates",
+            "webnovel",
+            "novelbuddy",
         ]
     )
 
@@ -63,8 +65,8 @@ class Config:
     mal_client_id: str = ""
 
     # Optional Byparr (FlareSolverr-compatible) anti-bot proxy base URL, e.g.
-    # "http://byparr:8191". When set, captcha-protected sources (e.g.
-    # NovelUpdates) are fetched through it instead of directly. Empty = off.
+    # "http://byparr:8191". When set, captcha-protected sources (NovelUpdates,
+    # Webnovel) are fetched through it instead of directly. Empty = off.
     byparr_url: str = ""
 
     # Shared rate limit applied across all upstream requests.
@@ -86,6 +88,8 @@ class Config:
                 "ranobedb",
                 "myanimelist",
                 "novelupdates",
+                "webnovel",
+                "novelbuddy",
             ]
 
         merge_mode = os.environ.get("MERGE_MODE", "priority").strip().lower()

@@ -30,3 +30,13 @@ def ranobedb_search():
 @pytest.fixture
 def ranobedb_detail():
     return load("ranobedb_detail.json")
+
+
+@pytest.fixture
+def webnovel_data():
+    return load("webnovel_search.json")
+
+
+@pytest.fixture
+def novelbuddy_data():
+    return load("novelbuddy_search.json")

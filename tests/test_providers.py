@@ -6,12 +6,16 @@ they verify the mapping from each upstream shape to the ABS match shape.
 
 from __future__ import annotations
 
+import json
+
 from aiolimiter import AsyncLimiter
 
 from abs_webnovel.config import Config
 from abs_webnovel.providers.anilist import AniListProvider
 from abs_webnovel.providers.mangadex import MangaDexProvider
+from abs_webnovel.providers.novelbuddy import NovelBuddyProvider, _extract_items
 from abs_webnovel.providers.ranobedb import RanobeDBProvider
+from abs_webnovel.providers.webnovel import WebnovelProvider, _extract_json
 
 
 def _provider(cls, **config_overrides):
@@ -112,3 +116,100 @@ def test_ranobedb_parse_falls_back_to_search_book(ranobedb_search):
     assert match is not None
     assert match["title"].startswith("Demon Ruler 2")
     assert match["publishedYear"] == 2018
+
+
+# --- Webnovel ---------------------------------------------------------------
+
+
+def test_webnovel_parse_maps_fields(webnovel_data):
+    p = _provider(WebnovelProvider)
+    item = webnovel_data["data"]["bookInfo"]["bookItems"][0]
+    match = p._parse(item)
+    assert match is not None
+    assert match["title"] == "The Legendary Mechanic"
+    assert match["author"] == "齐佩甲"
+    assert match["description"].startswith("In the future")
+    assert match["cover"] == (
+        "https://book-pic.webnovel.com/bookcover/1234567"
+        "?imageMogr2/thumbnail/600x"
+    )
+    assert match["genres"] == ["EASTERN"]
+    assert match["tags"] == ["Sci-Fi", "Action"]
+
+
+def test_webnovel_parse_empty_tag_info(webnovel_data):
+    p = _provider(WebnovelProvider)
+    item = webnovel_data["data"]["bookInfo"]["bookItems"][1]
+    match = p._parse(item)
+    assert match is not None
+    assert match["title"] == "Solo Max-Level Newbie"
+    assert "tags" not in match
+
+
+def test_webnovel_parse_no_title_returns_none():
+    p = _provider(WebnovelProvider)
+    assert p._parse({"bookId": "1", "authorName": "x"}) is None
+
+
+def test_webnovel_extract_json_strips_pre_wrapper(webnovel_data):
+    body = "<html><body><pre>" + json.dumps(webnovel_data) + "</pre></body></html>"
+    data = _extract_json(body)
+    assert data is not None
+    assert data["code"] == 0
+
+
+def test_webnovel_extract_json_plain_json(webnovel_data):
+    data = _extract_json(json.dumps(webnovel_data))
+    assert data is not None
+    assert data["code"] == 0
+
+
+def test_webnovel_extract_json_garbage_returns_none():
+    assert _extract_json("<html><body>not json</body></html>") is None
+
+
+# --- NovelBuddy -------------------------------------------------------------
+
+
+def test_novelbuddy_parse_maps_fields(novelbuddy_data):
+    p = _provider(NovelBuddyProvider)
+    item = novelbuddy_data["data"]["items"][0]
+    match = p._parse(item)
+    assert match is not None
+    assert match["title"] == "The Merchant of Souls"
+    assert match["author"] == "J. R. Quill"
+    assert match["description"].startswith("A merchant who trades")
+    assert match["cover"] == "https://res.mbbcdn.com/thumb/novelbuddy-me/cover/42.jpg"
+    assert match["genres"] == ["Fantasy", "Adventure"]
+    assert match["tags"] == ["dark fantasy"]
+
+
+def test_novelbuddy_parse_empty_cover_and_authors(novelbuddy_data):
+    p = _provider(NovelBuddyProvider)
+    item = novelbuddy_data["data"]["items"][1]
+    match = p._parse(item)
+    assert match is not None
+    assert match["title"] == "Merchant of the Seas"
+    assert "cover" not in match
+    assert "author" not in match
+
+
+def test_novelbuddy_parse_no_title_returns_none():
+    p = _provider(NovelBuddyProvider)
+    assert p._parse({"id": 1, "slug": "x"}) is None
+
+
+def test_novelbuddy_extract_items_envelope(novelbuddy_data):
+    items = _extract_items(novelbuddy_data)
+    assert len(items) == 2
+    assert items[0]["name"] == "The Merchant of Souls"
+
+
+def test_novelbuddy_extract_items_top_level_list():
+    items = _extract_items({"items": [{"name": "A"}, {"name": "B"}]})
+    assert [i["name"] for i in items] == ["A", "B"]
+
+
+def test_novelbuddy_extract_items_empty():
+    assert _extract_items({}) == []
+    assert _extract_items({"data": {}}) == []

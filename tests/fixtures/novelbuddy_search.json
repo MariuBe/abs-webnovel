@@ -1,0 +1,61 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 42,
+        "name": "The Merchant of Souls",
+        "slug": "the-merchant-of-souls",
+        "url": "https://novelbuddy.me/the-merchant-of-souls",
+        "cover": "novelbuddy-me/cover/42.jpg",
+        "summary": "A merchant who trades in souls finds himself at the center of a war between gods.",
+        "status": "ongoing",
+        "rating": 4.5,
+        "updated_at": "2025-11-02T10:00:00Z",
+        "added_at": "2024-03-15T08:30:00Z",
+        "alt_names": ["Soul Merchant"],
+        "latest_chapters": [{"number": 120, "title": "The Reckoning"}],
+        "authors": [{"name": "J. R. Quill"}],
+        "genres": [{"name": "Fantasy", "slug": "fantasy"}, {"name": "Adventure", "slug": "adventure"}],
+        "tags": [{"name": "dark fantasy", "slug": "dark-fantasy"}],
+        "rating_stats": {"average": 4.5, "total": 1200, "distribution": {}},
+        "type": {"name": "Novel", "slug": "novel"},
+        "is_adult": false,
+        "is_new": false,
+        "is_hot": true,
+        "is_uncensored": false,
+        "is_raw": false,
+        "is_mtl": false,
+        "is_deleted": false,
+        "cover_censored": false
+      },
+      {
+        "id": 43,
+        "name": "Merchant of the Seas",
+        "slug": "merchant-of-the-seas",
+        "url": "https://novelbuddy.me/merchant-of-the-seas",
+        "cover": "",
+        "summary": "A pirate merchant sails the seven seas.",
+        "status": "completed",
+        "rating": 3.8,
+        "updated_at": "2023-01-01T00:00:00Z",
+        "added_at": "2022-06-01T00:00:00Z",
+        "alt_names": [],
+        "latest_chapters": [],
+        "authors": [],
+        "genres": [{"name": "Adventure", "slug": "adventure"}],
+        "tags": [],
+        "rating_stats": {"average": 3.8, "total": 300, "distribution": {}},
+        "type": {"name": "Novel", "slug": "novel"},
+        "is_adult": false,
+        "is_new": false,
+        "is_hot": false,
+        "is_uncensored": false,
+        "is_raw": false,
+        "is_mtl": false,
+        "is_deleted": false,
+        "cover_censored": false
+      }
+    ]
+  }
+}

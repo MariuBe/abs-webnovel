@@ -1,0 +1,37 @@
+{
+  "code": 0,
+  "data": {
+    "bookInfo": {
+      "total": 1000,
+      "isLast": 0,
+      "bookItems": [
+        {
+          "bookId": "1234567",
+          "bookName": "The Legendary Mechanic",
+          "novelType": "Novel",
+          "description": "In the future, humanity has spread across the galaxy. A young mechanic with a mysterious AI companion rises from the bottom of society to become a legend.",
+          "categoryId": 1001,
+          "categoryName": "EASTERN",
+          "authorName": "齐佩甲",
+          "totalScore": 4.28,
+          "translateMode": "Translated",
+          "tagInfo": ["Sci-Fi", "Action"],
+          "coverUpdateTime": 1700000000000
+        },
+        {
+          "bookId": "7654321",
+          "bookName": "Solo Max-Level Newbie",
+          "novelType": "Novel",
+          "description": "A newbie who levels up faster than anyone else.",
+          "categoryId": 1002,
+          "categoryName": "WESTERN",
+          "authorName": "Some Author",
+          "totalScore": 3.9,
+          "translateMode": "Translated",
+          "tagInfo": [],
+          "coverUpdateTime": 1700000000000
+        }
+      ]
+    }
+  }
+}

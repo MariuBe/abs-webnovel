@@ -1,7 +1,7 @@
 [project]
 name = "abs-webnovel"
 version = "0.1.0"
-description = "Multi-source light novel / web novel metadata provider for Audiobookshelf (AniList, MangaDex, RanobeDB, MyAnimeList, NovelUpdates)"
+description = "Multi-source light novel / web novel metadata provider for Audiobookshelf (AniList, MangaDex, RanobeDB, MyAnimeList, NovelUpdates, Webnovel, NovelBuddy)"
 readme = "README.md"
 license = "MIT"
 authors = [

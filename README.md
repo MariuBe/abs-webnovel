@@ -9,6 +9,8 @@ A lightweight **custom metadata provider** for [Audiobookshelf](https://github.c
 | **RanobeDB** | Light-novel focused. Search + detail fetch for description, staff, publishers, series, ISBN. |
 | **MyAnimeList** | Requires a client id (`MAL_CLIENT_ID`); disabled when not set. |
 | **NovelUpdates** | Behind Cloudflare. Works out of the box only when a [Byparr](https://github.com/ThePhaseless/Byparr) anti-bot proxy is configured (`BYPARR_URL`); otherwise best-effort and often returns nothing. |
+| **Webnovel** | webnovel.com (Qidian International). Behind Cloudflare — only active when `BYPARR_URL` is set; searches are routed through Byparr. |
+| **NovelBuddy** | novelbuddy.me — plain JSON API, no Cloudflare. The upstream backend is occasionally unavailable (503); the source then simply returns nothing. |
 
 The service exposes a single `GET /search` endpoint that matches the
 Audiobookshelf **Custom Metadata Provider** contract
@@ -67,23 +69,23 @@ curl "http://localhost:8080/search?mediaType=book&query=solo%20leveling"
 | `PORT` | `8080` | Bind port. |
 | `LOG_LEVEL` | `INFO` | Logging level. |
 | `SEARCH_LIMIT` | `5` | Max results per source (and in the merged response). |
-| `SOURCE_PRIORITY` | `anilist,mangadex,ranobedb,myanimelist,novelupdates` | Comma-separated, ordered source list. Unknown names are ignored. |
+| `SOURCE_PRIORITY` | `anilist,mangadex,ranobedb,myanimelist,novelupdates,webnovel,novelbuddy` | Comma-separated, ordered source list. Unknown names are ignored. |
 | `MERGE_MODE` | `priority` | `priority` = merge all sources by priority; `first` = stop at the first source with results. |
 | `PREFER_ROMAJI` | `true` | Prefer romaji/English titles over native (JP/KR) titles. |
 | `MAL_CLIENT_ID` | *(empty)* | MyAnimeList client id. The MAL source is disabled when empty. |
-| `BYPARR_URL` | *(empty)* | Base URL of a [Byparr](https://github.com/ThePhaseless/Byparr) anti-bot proxy (e.g. `http://byparr:8191`). When set, captcha-protected sources (NovelUpdates) are fetched through it. |
+| `BYPARR_URL` | *(empty)* | Base URL of a [Byparr](https://github.com/ThePhaseless/Byparr) anti-bot proxy (e.g. `http://byparr:8191`). When set, captcha-protected sources (NovelUpdates, Webnovel) are fetched through it. |
 | `RATE_LIMIT` | `60` | Shared upstream request budget… |
 | `RATE_PERIOD` | `60` | …per this many seconds (applied across all sources). |
 
 `--cache-dir <dir>` enables a 7-day SQLite response cache for upstream GETs.
 
-### Byparr (Cloudflare bypass for NovelUpdates)
+### Byparr (Cloudflare bypass for NovelUpdates and Webnovel)
 
-NovelUpdates sits behind Cloudflare and returns 403 to plain HTTP clients.
-[Byparr](https://github.com/ThePhaseless/Byparr) is a FlareSolverr-compatible
-service that drives a real browser, solves the challenge, and returns the
-rendered page. Point `BYPARR_URL` at a running instance and the NovelUpdates
-source will route its requests through it.
+NovelUpdates and webnovel.com sit behind Cloudflare and return 403 to plain
+HTTP clients. [Byparr](https://github.com/ThePhaseless/Byparr) is a
+FlareSolverr-compatible service that drives a real browser, solves the
+challenge, and returns the rendered page. Point `BYPARR_URL` at a running
+instance and those sources will route their requests through it.
 
 The bundled `compose.yaml` already runs a `byparr` service and wires
 `BYPARR_URL=http://byparr:8191` into `abs-webnovel`, so the bypass is enabled
@@ -110,8 +112,8 @@ Notes:
   the cookie in its own client).
 - Byparr does not *guarantee* a bypass — success depends on the egress IP.
   A residential proxy (`PROXY_SERVER`) often improves the success rate.
-- When Byparr is unreachable or the challenge fails, NovelUpdates simply
-  returns no results; the other sources are unaffected.
+- When Byparr is unreachable or the challenge fails, NovelUpdates and
+  Webnovel simply return no results; the other sources are unaffected.
 
 ### Example: RanobeDB first, then AniList
 
@@ -132,16 +134,20 @@ src/abs_webnovel/
     ├── mangadex.py
     ├── ranobedb.py
     ├── myanimelist.py
-    └── novelupdates.py
+    ├── novelupdates.py
+    ├── webnovel.py
+    └── novelbuddy.py
 tests/                 # unit tests (merge logic, parsers, Byparr)
     └── mock_byparr.py # local mock Byparr for smoke testing
 ```
 
 ## Notes & limitations
 
-- **NovelUpdates** is Cloudflare-protected; without a Byparr proxy
-  (`BYPARR_URL`) expect it to return nothing from most server environments.
-  It never blocks the request.
+- **NovelUpdates** and **Webnovel** are Cloudflare-protected; without a
+  Byparr proxy (`BYPARR_URL`) they are disabled and return nothing. They
+  never block the request.
+- **NovelBuddy**'s backend is occasionally down (503); the source then
+  returns nothing until it recovers.
 - **MyAnimeList** needs a client id from
   [myanimelist.net/apiconfig](https://myanimelist.net/apiconfig).
 - Each provider swallows its own errors — one broken upstream never breaks a

@@ -116,6 +116,8 @@ def test_config_from_env_defaults(monkeypatch):
         "ranobedb",
         "myanimelist",
         "novelupdates",
+        "webnovel",
+        "novelbuddy",
     ]
 
 
