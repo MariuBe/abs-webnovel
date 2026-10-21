@@ -40,7 +40,8 @@ services:
     shm_size: "1gb"
     tmpfs:
       - /tmp:exec,mode=1777,size=1G
-      - /cache:mode=1777,size=512M
+      # Must fit the extracted Camoufox browser bundle (~1 GB).
+      - /cache:mode=1777,size=2G
     restart: unless-stopped
 
 volumes:
