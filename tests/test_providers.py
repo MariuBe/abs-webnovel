@@ -171,23 +171,36 @@ def test_webnovel_extract_json_garbage_returns_none():
 # --- NovelBuddy -------------------------------------------------------------
 
 
-def test_novelbuddy_parse_maps_fields(novelbuddy_data):
+def test_novelbuddy_parse_uses_detail(novelbuddy_data, novelbuddy_detail):
     p = _provider(NovelBuddyProvider)
     item = novelbuddy_data["data"]["items"][0]
-    match = p._parse(item)
+    match = p._parse(item, novelbuddy_detail["data"]["title"])
     assert match is not None
-    assert match["title"] == "The Merchant of Souls"
-    assert match["author"] == "J. R. Quill"
-    assert match["description"].startswith("A merchant who trades")
-    assert match["cover"] == "https://res.mbbcdn.com/thumb/novelbuddy-me/cover/42.jpg"
-    assert match["genres"] == ["Fantasy", "Adventure"]
-    assert match["tags"] == ["dark fantasy"]
+    assert match["title"] == "Merchant Crab"
+    assert match["author"] == "H0st"
+    assert match["description"].startswith("A merchant crab")
+    assert match["cover"] == "https://rs.novelbuddy.me/covers/merchant-crab.png"
+    assert match["genres"] == ["Comedy", "Adventure"]
+    assert match["tags"] == ["isecai", "sea"]
+    # release_date is null; year comes from first_chapter_updated_at
+    assert match["publishedYear"] == 2025
+
+
+def test_novelbuddy_parse_falls_back_to_search_item(novelbuddy_data):
+    p = _provider(NovelBuddyProvider)
+    item = novelbuddy_data["data"]["items"][0]
+    match = p._parse(item, {})
+    assert match is not None
+    assert match["title"] == "Merchant Crab"
+    assert "author" not in match
+    assert match["cover"] == "https://rs.novelbuddy.me/covers/merchant-crab.png"
+    assert match["genres"] == ["Comedy", "Adventure"]
 
 
 def test_novelbuddy_parse_empty_cover_and_authors(novelbuddy_data):
     p = _provider(NovelBuddyProvider)
     item = novelbuddy_data["data"]["items"][1]
-    match = p._parse(item)
+    match = p._parse(item, {})
     assert match is not None
     assert match["title"] == "Merchant of the Seas"
     assert "cover" not in match
@@ -196,13 +209,13 @@ def test_novelbuddy_parse_empty_cover_and_authors(novelbuddy_data):
 
 def test_novelbuddy_parse_no_title_returns_none():
     p = _provider(NovelBuddyProvider)
-    assert p._parse({"id": 1, "slug": "x"}) is None
+    assert p._parse({"id": "x", "slug": "x"}, {}) is None
 
 
 def test_novelbuddy_extract_items_envelope(novelbuddy_data):
     items = _extract_items(novelbuddy_data)
     assert len(items) == 2
-    assert items[0]["name"] == "The Merchant of Souls"
+    assert items[0]["name"] == "Merchant Crab"
 
 
 def test_novelbuddy_extract_items_top_level_list():

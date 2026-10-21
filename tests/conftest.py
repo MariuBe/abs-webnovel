@@ -40,3 +40,8 @@ def webnovel_data():
 @pytest.fixture
 def novelbuddy_data():
     return load("novelbuddy_search.json")
+
+
+@pytest.fixture
+def novelbuddy_detail():
+    return load("novelbuddy_detail.json")

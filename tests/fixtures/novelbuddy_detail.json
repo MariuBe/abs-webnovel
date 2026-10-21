@@ -1,0 +1,40 @@
+{
+  "success": true,
+  "data": {
+    "title": {
+      "id": "524VWpYd",
+      "name": "Merchant Crab",
+      "slug": "merchant-crab",
+      "url": "https://novelbuddy.me/merchant-crab",
+      "cover": "https://rs.novelbuddy.me/covers/merchant-crab.png",
+      "summary": "A merchant crab who trades in shells finds himself at the center of a war between gods.",
+      "status": "OnGoing",
+      "rating": 4.5,
+      "release_date": null,
+      "first_chapter_updated_at": "2025-02-26T14:54:23.000Z",
+      "updated_at": "2026-10-14T18:08:03.000Z",
+      "authors": [
+        {"name": "H0st", "slug": "h0st"}
+      ],
+      "artists": [],
+      "genres": [
+        {"name": "Comedy", "slug": "comedy", "titles_count": 12},
+        {"name": "Adventure", "slug": "adventure", "titles_count": 34}
+      ],
+      "tags": [
+        {"name": "isecai", "slug": "isecai"},
+        {"name": "sea", "slug": "sea"}
+      ],
+      "type": {"name": "Korean", "slug": "korean"},
+      "rating_stats": {
+        "average": 4.5,
+        "total": 1200,
+        "distribution": {"5": 900, "4": 200, "3": 50, "2": 30, "1": 20}
+      },
+      "is_adult": false,
+      "is_hot": true,
+      "is_mtl": true
+    },
+    "latest_comments": []
+  }
+}
